@@ -5,255 +5,329 @@
 <title>LADS Essay Portal</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-  .hidden { display: none; }
-  textarea { min-height: 150px; font-family: monospace; }
-  article { margin-top: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem; }
-  button.delete-btn { margin-left:10px; color:red; }
-  button.edit-btn { margin-left:10px; color:blue; }
-  nav.tabs ul { display: flex; gap: 1rem; }
-  nav.tabs ul li { list-style: none; }
-  .essay-text { white-space: pre-wrap; } /* preserves line breaks & tabs */
-  input[type="text"].essay-input, textarea.essay-textarea { width: 100%; margin-bottom: 0.5rem; }
+/* GENERAL STYLES */
+.hidden { display: none; }
+article { margin-top: 1rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem; cursor: pointer; }
+article:hover { background: #000020; }
+nav.tabs ul { display: flex; gap: 1rem; }
+nav.tabs ul li { list-style: none; }
+
+/* INPUTS */
+input[type="text"].essay-input {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  font-family: monospace;
+}
+
+/* ESSAY DISPLAY */
+.essay-text {
+  Black-space: pre-wrap;
+  font-family: abadi;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  background: #000000;
+  margin-top: 0.5rem;
+}
+
+/* REACTION TEXTAREA */
+textarea.reaction-textarea {
+  width: 100%;
+  min-height: 50px;
+  max-height: 150px;
+  overflow-y: auto;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+
+/* BUTTONS */
+button.delete-btn { margin-left:10px; color:red; }
+button.edit-btn { margin-left:10px; color:blue; }
+button.save-btn { margin-left:10px; color:green; }
+
+/* EXPANDED SECTION */
+.expanded { margin-top: 0.5rem; border-top: 1px dashed #aaa; padding-top: 0.5rem; }
 </style>
 </head>
 <body>
 
 <main class="container">
 
-  <!-- LOGIN -->
-  <section id="login">
-  <h2 style="font-size:20px">Welcome to the <Strong>LADS Essay Portal</strong> Where <i>you</i> can share <i>your</i> essays for everyone to see and help you and your brothers improve your essay writing skills!</h2>
-    <p style="font-family:garamond;"><b>Enter the club password to continue</b></p>
-    <input type="password" id="passwordInput" placeholder="Password">
-    <button onclick="checkPassword()">Enter</button>
-    <p id="error" style="color:red;"></p>
+<!-- LOGIN -->
+<section id="login">
+  <h2 style="font-size:20px">
+    Welcome to the <strong>LADS Essay Portal</strong> where <i>you</i> can share <i>your</i> essays!
+  </h2>
+  <p style="font-family:garamond;"><b>Enter the club password to continue</b></p>
+  <input type="password" id="passwordInput" placeholder="Password">
+  <button onclick="checkPassword()">Enter</button>
+  <p id="error" style="color:red;"></p>
+</section>
+
+<!-- CONTENT -->
+<div id="content" class="hidden">
+
+  <!-- TABS -->
+  <nav class="tabs">
+    <ul>
+      <li><a href="#" onclick="showSection('submitSection')">Submit Essay</a></li>
+      <li><a href="#" onclick="showSection('viewSection')">View Essays</a></li>
+    </ul>
+  </nav>
+
+  <!-- SUBMIT ESSAY -->
+  <section id="submitSection">
+    <h2>Submit an Essay</h2>
+    <input type="text" id="author" placeholder="Your Name and Class (EG. Neelesh Badree 3P)" required>
+
+    <label>Select up to 3 genres <i>(Hold Ctrl to select multiple)</i></label>
+    <select id="genres" multiple>
+      <option>Comedy</option>
+      <option>Adventure</option>
+      <option>Romance</option>
+      <option>Life</option>
+      <option>Horror</option>
+      <option>Report</option>
+      <option>Argumentative</option>
+      <option>Persuasive</option>
+      <option>Descriptive Works</option>
+      <option>Formal Essay</option>
+      <option>Complaint</option>
+      <option>Letters</option>
+      <option>Drama</option>
+    </select>
+
+    <textarea id="essayText" placeholder="Start your essay here..." required></textarea>
+    <button onclick="addEssay()">Submit Essay</button>
   </section>
 
-  <!-- CONTENT -->
-  <div id="content" class="hidden">
+  <!-- VIEW ESSAYS -->
+  <section id="viewSection" class="hidden">
+    <h2>Search Essays</h2>
+    <input type="search" id="search" placeholder="Search by Name, Class, or Genre" oninput="loadEssays()">
 
-    <!-- TABS -->
-    <nav class="tabs">
-      <ul>
-        <li><a href="#" onclick="showSection('submitSection')">Submit Essay</a></li>
-        <li><a href="#" onclick="showSection('viewSection')">View Essays</a></li>
-      </ul>
-    </nav>
+    <h2>Submitted Essays</h2>
+    <div id="essayList"></div>
+  </section>
 
-    <!-- SUBMIT ESSAY -->
-    <section id="submitSection">
-      <h2>Submit an Essay</h2>
-      <input type="text" id="author" placeholder="Your Name and Class (EG. Neelesh Badree 3P)" required>
-
-      <label>Select up to 3 genres <i>(Hold Ctrl to select multiple)</i></label>
-      <select id="genres" multiple>
-        <option>Comedy</option>
-        <option>Adventure</option>
-        <option>Romance</option>
-        <option>Life</option>
-        <option>Horror</option>
-        <option>Report</option>
-        <option>Argumentative</option>
-        <option>Persuasive</option>
-        <option>Descriptive Works</option>
-        <option>Formal Essay</option>
-        <option>Complaint</option>
-        <option>Letters</option>
-        <option>Drama</option>
-      </select>
-
-      <textarea id="essayText" placeholder="Start your essay here..." required></textarea>
-      <button onclick="addEssay()">Submit Essay</button>
-    </section>
-
-    <!-- VIEW ESSAYS -->
-    <section id="viewSection" class="hidden">
-      <h2>Search Essays</h2>
-      <input type="search" id="search" placeholder="Search by Name, Class, or Genre" oninput="loadEssays()">
-
-      <h2>Submitted Essays</h2>
-      <div id="essayList"></div>
-    </section>
-
-  </div>
-
+</div>
 </main>
 
 <footer class="container">
   <small>
-    <u>NAPARIMA COLLEGE • LADS • Built for Essay Writing & Essay Appreciation<u>
+    <u>NAPARIMA COLLEGE • LADS • Built for Essay Writing & Essay Appreciation</u>
   </small>
 </footer>
 
 <script>
-  // === PASSWORDS ===
-  const CLUB_PASSWORD = "iwonderwhomadethis?";
-  const DELETE_PASSWORD = "#FF9CAE";
-  const EDIT_PASSWORD = "m@gical-cur3-l0vesh0t";
+// PASSWORDS
+const CLUB_PASSWORD = "iwonderwhomadethis?";
+const DELETE_PASSWORD = "DeLeTe-NB";
+const EDIT_PASSWORD = "EditEdit3P";
 
-  // === LOGIN ===
-  function checkPassword() {
-    const input = document.getElementById("passwordInput").value;
-    if (input === CLUB_PASSWORD) {
-      document.getElementById("login").classList.add("hidden");
-      document.getElementById("content").classList.remove("hidden");
-      showSection('submitSection'); // default tab
-      loadEssays();
-    } else {
-      document.getElementById("error").textContent = "Incorrect password.";
-    }
-  }
-
-  // === TAB SWITCHING ===
-  function showSection(id) {
-    document.getElementById('submitSection').classList.add('hidden');
-    document.getElementById('viewSection').classList.add('hidden');
-    document.getElementById(id).classList.remove('hidden');
-  }
-
-  // === ADD ESSAY ===
-  function addEssay() {
-    const author = document.getElementById("author").value.trim();
-    const text = document.getElementById("essayText").value.trim();
-    const genres = Array.from(document.getElementById("genres").selectedOptions).map(o => o.value);
-
-    if (!author || !text || genres.length === 0 || genres.length > 3) {
-      alert("Fill all fields and select up to 3 genres.");
-      return;
-    }
-
-    const essays = JSON.parse(localStorage.getItem("essays")) || [];
-    essays.push({ author, text, genres, reactions: [] });
-    localStorage.setItem("essays", JSON.stringify(essays));
-
-    document.getElementById("author").value = "";
-    document.getElementById("essayText").value = "";
-    document.getElementById("genres").selectedIndex = -1;
-
+// LOGIN
+function checkPassword() {
+  const input = document.getElementById("passwordInput").value;
+  if(input === CLUB_PASSWORD){
+    document.getElementById("login").classList.add("hidden");
+    document.getElementById("content").classList.remove("hidden");
+    showSection('submitSection');
     loadEssays();
-    showSection('viewSection');
+  } else {
+    document.getElementById("error").textContent = "Incorrect password.";
+  }
+}
+
+// TAB SWITCHING
+function showSection(id){
+  document.getElementById('submitSection').classList.add('hidden');
+  document.getElementById('viewSection').classList.add('hidden');
+  document.getElementById(id).classList.remove('hidden');
+}
+
+// ADD ESSAY
+function addEssay(){
+  const author = document.getElementById("author").value.trim();
+  const text = document.getElementById("essayText").value.trim();
+  const genres = Array.from(document.getElementById("genres").selectedOptions).map(o => o.value);
+
+  if(!author || !text || genres.length === 0 || genres.length > 3){
+    alert("Fill all fields and select up to 3 genres.");
+    return;
   }
 
-  // === LOAD ESSAYS ===
-  function loadEssays() {
-    const list = document.getElementById("essayList");
-    list.innerHTML = "";
+  const essays = JSON.parse(localStorage.getItem("essays")) || [];
+  essays.push({author,text,genres,reactions:[]});
+  localStorage.setItem("essays",JSON.stringify(essays));
 
-    const search = document.getElementById("search").value.toLowerCase();
-    const essays = JSON.parse(localStorage.getItem("essays")) || [];
+  document.getElementById("author").value="";
+  document.getElementById("essayText").value="";
+  document.getElementById("genres").selectedIndex=-1;
 
-    essays
-      .filter(e => e.author.toLowerCase().includes(search) || e.genres.join(" ").toLowerCase().includes(search))
-      .forEach((essay, index) => {
-        const article = document.createElement("article");
-        article.innerHTML = `
-          <input type="text" id="author-${index}" class="essay-input" value="${essay.author}" disabled>
-          <textarea id="text-${index}" class="essay-text essay-textarea" disabled>${essay.text}</textarea>
-          <input type="text" id="genres-${index}" class="essay-input" value="${essay.genres.join(", ")}" disabled>
+  loadEssays();
+  showSection('viewSection');
+}
 
-          <h4>Reactions</h4>
-          <ul>
-            ${essay.reactions.map(r => `<li><strong>${r.name}</strong> (${r.class}) — ${"⭐".repeat(r.rating)}<br>${r.comment}</li>`).join('')}
-          </ul>
+// LOAD ESSAYS
+function loadEssays(){
+  const list = document.getElementById("essayList");
+  list.innerHTML = "";
 
-          <input id="rname-${index}" placeholder="Your name">
-          <input id="rclass-${index}" placeholder="Your class">
-          <textarea id="rcomment-${index}" placeholder="Your criticism"></textarea>
-          <select id="rrating-${index}">
-            <option value="1">1 ⭐</option>
-            <option value="2">2 ⭐⭐</option>
-            <option value="3">3 ⭐⭐⭐</option>
-            <option value="4">4 ⭐⭐⭐⭐</option>
-            <option value="5">5 ⭐⭐⭐⭐⭐</option>
-          </select>
-          <button onclick="addReaction(${index})">React</button>
-          <button class="edit-btn" onclick="editEssay(${index})">Edit Essay</button>
-          <button class="delete-btn" onclick="deleteEssay(${index})">Delete Essay</button>
-          <button id="save-${index}" class="hidden" onclick="saveEssay(${index})">Save Changes</button>
-        `;
-        list.appendChild(article);
+  const search = document.getElementById("search").value.toLowerCase();
+  const essays = JSON.parse(localStorage.getItem("essays")) || [];
+
+  essays
+    .filter(e => e.author.toLowerCase().includes(search) || e.genres.join(" ").toLowerCase().includes(search))
+    .forEach((essay,index)=>{
+      const article = document.createElement("article");
+      article.innerHTML = `
+        <strong>${essay.author}</strong> — ${essay.genres.join(", ")}
+        <div id="expanded-${index}" class="expanded hidden"></div>
+      `;
+      article.addEventListener('click',()=>{
+        toggleEssay(index);
       });
+      list.appendChild(article);
+    });
+}
+
+// TOGGLE FULL ESSAY VIEW
+function toggleEssay(index){
+  const expandedDiv = document.getElementById(`expanded-${index}`);
+  if(!expandedDiv.classList.contains('hidden')){
+    expandedDiv.classList.add('hidden');
+    expandedDiv.innerHTML = "";
+    return;
   }
 
-  // === ADD REACTION ===
-  function addReaction(index) {
-    const essays = JSON.parse(localStorage.getItem("essays"));
-    const name = document.getElementById(`rname-${index}`).value.trim();
-    const studentClass = document.getElementById(`rclass-${index}`).value.trim();
-    const comment = document.getElementById(`rcomment-${index}`).value.trim();
-    const rating = parseInt(document.getElementById(`rrating-${index}`).value);
+  const essays = JSON.parse(localStorage.getItem("essays"));
+  const essay = essays[index];
 
-    if (!name || !studentClass || !comment) {
-      alert("Fill all reaction fields.");
-      return;
-    }
+  expandedDiv.classList.remove('hidden');
+  expandedDiv.innerHTML = `
+    <div class="essay-text">${essay.text}</div>
+    <input type="text" id="author-${index}" class="essay-input" value="${essay.author}" disabled>
+    <input type="text" id="genres-${index}" class="essay-input" value="${essay.genres.join(", ")}" disabled>
 
-    essays[index].reactions.push({ name, class: studentClass, comment, rating });
-    localStorage.setItem("essays", JSON.stringify(essays));
+    <h4>Reactions</h4>
+    <ul>
+      ${essay.reactions.map(r=>`<li><strong>${r.name}</strong> (${r.class}) — ${"⭐".repeat(r.rating)}<br>${r.comment}</li>`).join('')}
+    </ul>
+
+    <input id="rname-${index}" placeholder="Your name">
+    <input id="rclass-${index}" placeholder="Your class">
+    <textarea id="rcomment-${index}" class="reaction-textarea" placeholder="Your criticism"></textarea>
+    <select id="rrating-${index}">
+      <option value="1">1 ⭐</option>
+      <option value="2">2 ⭐⭐</option>
+      <option value="3">3 ⭐⭐⭐</option>
+      <option value="4">4 ⭐⭐⭐⭐</option>
+      <option value="5">5 ⭐⭐⭐⭐⭐</option>
+    </select>
+    <button onclick="addReaction(${index})">React</button>
+    <button class="edit-btn" onclick="editEssay(${index})">Edit Essay</button>
+    <button class="delete-btn" onclick="deleteEssay(${index})">Delete Essay</button>
+    <button id="save-${index}" class="save-btn hidden" onclick="saveEssay(${index})">Save Changes</button>
+  `;
+}
+
+// ADD REACTION
+function addReaction(index){
+  const essays = JSON.parse(localStorage.getItem("essays"));
+  const name = document.getElementById(`rname-${index}`).value.trim();
+  const studentClass = document.getElementById(`rclass-${index}`).value.trim();
+  const comment = document.getElementById(`rcomment-${index}`).value.trim();
+  const rating = parseInt(document.getElementById(`rrating-${index}`).value);
+
+  if(!name || !studentClass || !comment){
+    alert("Fill all reaction fields.");
+    return;
+  }
+
+  essays[index].reactions.push({name,class:studentClass,comment,rating});
+  localStorage.setItem("essays",JSON.stringify(essays));
+  toggleEssay(index); // collapse
+  toggleEssay(index); // re-expand to refresh
+}
+
+// DELETE ESSAY
+function deleteEssay(index){
+  const input = prompt("Enter delete password:");
+  if(input === DELETE_PASSWORD){
+    const essays = JSON.parse(localStorage.getItem("essays")) || [];
+    essays.splice(index,1);
+    localStorage.setItem("essays",JSON.stringify(essays));
     loadEssays();
+    alert("Essay deleted successfully.");
+  } else {
+    alert("Incorrect delete password.");
+  }
+}
+
+// EDIT ESSAY
+function editEssay(index){
+  const input = prompt("Enter edit password:");
+  if(input !== EDIT_PASSWORD){
+    alert("Incorrect edit password.");
+    return;
   }
 
-  // === DELETE ESSAY ===
-  function deleteEssay(index) {
-    const input = prompt("Enter delete password:");
-    if (input === DELETE_PASSWORD) {
-      const essays = JSON.parse(localStorage.getItem("essays")) || [];
-      essays.splice(index, 1);
-      localStorage.setItem("essays", JSON.stringify(essays));
-      loadEssays();
-      alert("Essay deleted successfully.");
-    } else {
-      alert("Incorrect delete password.");
-    }
+  const expandedDiv = document.getElementById(`expanded-${index}`);
+  const essayTextDiv = expandedDiv.querySelector(".essay-text");
+  const currentText = essayTextDiv.textContent;
+
+  const textarea = document.createElement("textarea");
+  textarea.id = `text-${index}`;
+  textarea.value = currentText;
+  textarea.style.width="100%";
+  textarea.style.minHeight="150px";
+  textarea.style.fontFamily="monospace";
+
+  essayTextDiv.replaceWith(textarea);
+  expandedDiv.querySelector(`#author-${index}`).disabled=false;
+  expandedDiv.querySelector(`#genres-${index}`).disabled=false;
+  expandedDiv.querySelector(`#save-${index}`).classList.remove('hidden');
+}
+
+// SAVE ESSAY
+function saveEssay(index){
+  const essays = JSON.parse(localStorage.getItem("essays"));
+  const expandedDiv = document.getElementById(`expanded-${index}`);
+  const author = expandedDiv.querySelector(`#author-${index}`).value.trim();
+  const textEl = expandedDiv.querySelector(`#text-${index}`);
+  const text = textEl.value.trim();
+  const genres = expandedDiv.querySelector(`#genres-${index}`).value.split(",").map(g=>g.trim()).slice(0,3);
+
+  if(!author || !text || genres.length === 0){
+    alert("All fields are required.");
+    return;
   }
 
-  // === EDIT ESSAY INLINE ===
-  function editEssay(index) {
-    const input = prompt("Enter edit password:");
-    if (input !== EDIT_PASSWORD) {
-      alert("Incorrect edit password.");
-      return;
-    }
+  essays[index] = {...essays[index],author,text,genres};
+  localStorage.setItem("essays",JSON.stringify(essays));
 
-    // enable fields
-    document.getElementById(`author-${index}`).disabled = false;
-    document.getElementById(`text-${index}`).disabled = false;
-    document.getElementById(`genres-${index}`).disabled = false;
+  const div = document.createElement("div");
+  div.className="essay-text";
+  div.textContent=text;
+  textEl.replaceWith(div);
 
-    // show save button
-    document.getElementById(`save-${index}`).classList.remove('hidden');
+  toggleEssay(index); // collapse
+  toggleEssay(index); // re-expand to refresh
+  alert("Essay updated successfully!");
+}
+
+// TAB INDENTATION IN SUBMISSION
+const essayTextArea = document.getElementById("essayText");
+essayTextArea.addEventListener("keydown",function(e){
+  if(e.key==="Tab"){
+    e.preventDefault();
+    const start=this.selectionStart;
+    const end=this.selectionEnd;
+    this.value=this.value.substring(0,start)+"\t"+this.value.substring(end);
+    this.selectionStart=this.selectionEnd=start+1;
   }
-
-  function saveEssay(index) {
-    const essays = JSON.parse(localStorage.getItem("essays"));
-    const author = document.getElementById(`author-${index}`).value.trim();
-    const text = document.getElementById(`text-${index}`).value.trim();
-    const genres = document.getElementById(`genres-${index}`).value.split(",").map(g => g.trim()).slice(0,3);
-
-    if (!author || !text || genres.length === 0) {
-      alert("All fields are required.");
-      return;
-    }
-
-    essays[index] = { ...essays[index], author, text, genres };
-    localStorage.setItem("essays", JSON.stringify(essays));
-    loadEssays();
-    alert("Essay updated successfully!");
-  }
-
-  // === ALLOW TAB INDENTATION IN TEXTAREA ===
-  const essayTextArea = document.getElementById("essayText");
-  essayTextArea.addEventListener("keydown", function(e) {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      const start = this.selectionStart;
-      const end = this.selectionEnd;
-      this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
-      this.selectionStart = this.selectionEnd = start + 1;
-    }
-  });
+});
 </script>
-
 </body>
 </html>
