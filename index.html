@@ -10,6 +10,7 @@
   textarea { min-height: 150px; font-family: monospace; }
   article { margin-top: 2rem; }
   button.delete-btn { margin-left:10px; color:red; }
+  button.edit-btn { margin-left:10px; color:blue; }
   nav.tabs ul { display: flex; gap: 1rem; }
   nav.tabs ul li { list-style: none; }
   .essay-text { white-space: pre-wrap; } /* preserves line breaks & tabs */
@@ -87,6 +88,7 @@
   // === PASSWORDS ===
   const CLUB_PASSWORD = "iwonderwhomadethis?";
   const DELETE_PASSWORD = "supersecretdelete";
+  const EDIT_PASSWORD = "supersecretdit";
 
   // === LOGIN ===
   function checkPassword() {
@@ -164,6 +166,7 @@
           </select>
 
           <button onclick="addReaction(${index})">React</button>
+          <button class="edit-btn" onclick="editEssay(${index})">Edit Essay</button>
           <button class="delete-btn" onclick="deleteEssay(${index})">Delete Essay</button>
         `;
         list.appendChild(article);
@@ -199,6 +202,41 @@
       alert("Essay deleted successfully.");
     } else {
       alert("Incorrect delete password.");
+    }
+  }
+
+  // === EDIT ESSAY ===
+  function editEssay(index) {
+    const input = prompt("Enter edit password:");
+    if (input === EDIT_PASSWORD) {
+      const essays = JSON.parse(localStorage.getItem("essays"));
+
+      const author = prompt("Edit Author/Name:", essays[index].author);
+      const text = prompt("Edit Essay Text:", essays[index].text);
+      const genres = prompt(
+        "Edit Genres (comma-separated, max 3):",
+        essays[index].genres.join(", ")
+      );
+
+      if (!author || !text || !genres) {
+        alert("All fields are required.");
+        return;
+      }
+
+      const genreArray = genres.split(",").map(g => g.trim()).slice(0,3);
+
+      essays[index] = {
+        ...essays[index],
+        author: author,
+        text: text,
+        genres: genreArray
+      };
+
+      localStorage.setItem("essays", JSON.stringify(essays));
+      loadEssays();
+      alert("Essay updated successfully!");
+    } else {
+      alert("Incorrect edit password.");
     }
   }
 
